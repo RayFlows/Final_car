@@ -1,0 +1,101 @@
+/* 包含main.css的所有样式，并添加解锁页面特有样式 */
+@import 'main.css';
+
+.controls {
+    margin: 25px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.control-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.control-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 25px;
+    margin: 0 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    min-width: 100px;
+}
+
+.control-btn:hover {
+    background-color: #2980b9;
+}
+
+.control-btn:active {
+    background-color: #1c6ea4;
+}
+
+.stop {
+    background-color: #e74c3c;
+}
+
+.stop:hover {
+    background-color: #c0392b;
+}
+
+.arm-controls {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.arm-controls h2 {
+    color: #2c3e50;
+    font-size: 1.3em;
+    margin-bottom: 15px;
+}
+
+.arm-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.arm-btn {
+    background-color: #9b59b6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    margin: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.arm-btn:hover {
+    background-color: #8e44ad;
+}
+
+.key-status {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.key-status h2 {
+    font-size: 1.2em;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+#active-keys {
+    font-family: monospace;
+    font-size: 1.1em;
+    padding: 10px;
+    background-color: #e8f4f8;
+    border-radius: 5px;
+    min-height: 24px;
+}

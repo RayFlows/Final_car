@@ -1,4 +1,5 @@
 #keyboard_controller.py
+ 
 import keyboard
 import socket
 import time
@@ -53,37 +54,6 @@ server_started = False  # 服务器启动状态标志
 
 # 当前活动按键状态
 active_keys = set()
-
-# 创建Flask应用
-keyboard_app = Flask(__name__)
-
-@keyboard_app.route('/keys')
-def get_active_keys():
-    """获取当前按下的键"""
-    return jsonify({"keys": list(active_keys)})
-
-# def run_keyboard_server():
-#     """运行键盘状态服务器"""
-#     keyboard_app.run(host='0.0.0.0', port=5001, threaded=True, use_reloader=False)
-
-def run_keyboard_server():
-    """运行键盘状态服务器"""
-    global server_started
-    try:
-        print("正在启动键盘状态服务器...")
-        # 使用不同的端口避免冲突
-        keyboard_app.run(host='0.0.0.0', port=5001, threaded=True, use_reloader=False)
-        server_started = True
-    except Exception as e:
-        print(f"键盘状态服务器启动失败: {e}")
-        # 尝试备用端口
-        try:
-            print("尝试使用备用端口 5002...")
-            keyboard_app.run(host='0.0.0.0', port=5002, threaded=True, use_reloader=False)
-            server_started = True
-        except Exception as e2:
-            print(f"备用端口启动失败: {e2}")
-            server_started = False
 
 def send_command(cmd):
     """发送命令到树莓派"""
@@ -148,52 +118,82 @@ def on_key_event(e):
                 if cmd in ['w', 'a', 's', 'd', 'q', 'e']:
                     send_command('x')
 
-def check_port_available(port):
-    """检查端口是否可用"""
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(("localhost", port))
-        s.close()
-        return True
-    except:
-        return False
+def get_active_keys():
+    """获取当前按下的键"""
+    return list(active_keys)
 
-def main():
-    global server_started
+# def main():
+#     global server_started
 
-    print("="*50)
-    print("猫咪迷宫遥控器 - 键盘控制模式")
-    print("="*50)
-    print("方向控制: W(前), A(左), S(后), D(右), Q(斜左前), E(斜右前)")
-    print("速度控制: ↑(加速), ↓(减速), 1/2/3(挡位)")
-    print("舵机控制: ←(左转), →(右转), 空格(停舵), 0(复位)")
-    print("猫品种显示: C/V/B/N/M")
-    print("退出: ESC")
+#     print("="*50)
+#     print("猫咪迷宫遥控器 - 键盘控制模式")
+#     print("="*50)
+#     print("方向控制: W(前), A(左), S(后), D(右), Q(斜左前), E(斜右前)")
+#     print("速度控制: ↑(加速), ↓(减速), 1/2/3(挡位)")
+#     print("舵机控制: ←(左转), →(右转), 空格(停舵), 0(复位)")
+#     print("猫品种显示: C/V/B/N/M")
+#     print("退出: ESC")
 
-    # 检查端口可用性
-    port = 5001
-    if not check_port_available(port):
-        print(f"⚠️ 警告：端口 {port} 已被占用，尝试使用备用端口 5002")
-        port = 5002
-        if not check_port_available(port):
-            print(f"❌ 错误：端口 {port} 也被占用，请关闭占用程序或选择其他端口")
-            port = int(input("请输入可用端口号: "))
+#     # 检查端口可用性
+#     port = 5001
+#     if not check_port_available(port):
+#         print(f"⚠️ 警告：端口 {port} 已被占用，尝试使用备用端口 5002")
+#         port = 5002
+#         if not check_port_available(port):
+#             print(f"❌ 错误：端口 {port} 也被占用，请关闭占用程序或选择其他端口")
+#             port = int(input("请输入可用端口号: "))
 
-    # 启动键盘状态服务器
-    print(f"\n启动键盘状态服务器在端口 {port}...")
-    keyboard_app.config['SERVER_PORT'] = port
+#     # 启动键盘状态服务器
+#     print(f"\n启动键盘状态服务器在端口 {port}...")
+#     keyboard_app.config['SERVER_PORT'] = port
     
-    kb_server_thread = threading.Thread(target=run_keyboard_server, daemon=True)
-    kb_server_thread.start()
+#     kb_server_thread = threading.Thread(target=run_keyboard_server, daemon=True)
+#     kb_server_thread.start()
 
-    # 等待服务器启动
-    time.sleep(5)  # 给服务器启动时间
-    if server_started:
-        print(f"✅ 键盘状态服务器运行在 http://localhost:{port}/keys")
-        print(f"您可以在浏览器中访问此URL查看当前按下的键")
-    else:
-        print("❌ 键盘状态服务器启动失败，状态API将不可用")
+#     # 等待服务器启动
+#     time.sleep(5)  # 给服务器启动时间
+#     if server_started:
+#         print(f"✅ 键盘状态服务器运行在 http://localhost:{port}/keys")
+#         print(f"您可以在浏览器中访问此URL查看当前按下的键")
+#     else:
+#         print("❌ 键盘状态服务器启动失败，状态API将不可用")
 
+#     # 测试网络连接
+#     print("\n测试网络连接...")
+#     try:
+#         test_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#         test_sock.sendto(b"TEST", (RASPBERRY_IP, CONTROL_PORT))
+#         print(f"测试数据包已发送到 {RASPBERRY_IP}:{CONTROL_PORT}")
+#     except Exception as e:
+#         print(f"网络测试失败: {e}")
+#         print("请检查: ")
+#         print("1. 树莓派是否在线并运行控制服务器")
+#         print("2. 防火墙设置是否允许UDP出站")
+#         print("3. 公网地址是否正确")
+    
+#     # 设置键盘监听
+#     print("\n启动键盘监听...")
+#     keyboard.hook(on_key_event)
+#     print("键盘监听已启动")
+    
+#     # 等待退出
+#     print("\n等待键盘输入 (按ESC退出)...")
+#     keyboard.wait('esc')
+    
+#     # 清理
+#     global running
+#     running = False
+#     if send_thread:
+#         send_thread.join(timeout=1.0)
+#     sock.close()
+#     print("\n程序已退出")
+
+def start():
+    """启动键盘控制器"""
+    print("="*50)
+    print("启动键盘控制器")
+    print("="*50)
+    
     # 测试网络连接
     print("\n测试网络连接...")
     try:
@@ -212,24 +212,36 @@ def main():
     keyboard.hook(on_key_event)
     print("键盘监听已启动")
     
-    # 等待退出
-    print("\n等待键盘输入 (按ESC退出)...")
-    keyboard.wait('esc')
-    
-    # 清理
+    # 返回而不阻塞主线程
+    return
+
+def stop():
+    """停止键盘控制器"""
     global running
     running = False
     if send_thread:
         send_thread.join(timeout=1.0)
     sock.close()
-    print("\n程序已退出")
+    print("\n键盘控制器已停止")
 
 if __name__ == '__main__':
     try:
-        main()
+        start()
+        print("\n等待键盘输入 (按ESC退出)...")
+        keyboard.wait('esc')
+        stop()
     except Exception as e:
         print(f"主程序错误: {e}")
         import traceback
         traceback.print_exc()
         input("按Enter退出...")
+
+# if __name__ == '__main__':
+#     try:
+#         main()
+#     except Exception as e:
+#         print(f"主程序错误: {e}")
+#         import traceback
+#         traceback.print_exc()
+#         input("按Enter退出...")
 
