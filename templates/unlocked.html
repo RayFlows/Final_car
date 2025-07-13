@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小车控制系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/unlock.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>小车控制系统</h1>
+        <div class="video-container">
+            <!-- 使用小车视频流 -->
+            <img src="{{ url_for('car_video_feed') }}" alt="小车摄像头">
+        </div>
+        
+        <!-- 控制按钮部分保持不变 -->
+        
+        <div class="key-status">
+            <h2>当前按键状态</h2>
+            <div id="active-keys">无按键按下</div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // 获取按键状态
+        function updateKeyStatus() {
+            fetch('/active_keys')
+                .then(response => response.json())
+                .then(data => {
+                    const keysDiv = document.getElementById('active-keys');
+                    if (data.keys && data.keys.length > 0) {
+                        keysDiv.textContent = data.keys.join(', ');
+                    } else {
+                        keysDiv.textContent = '无按键按下';
+                    }
+                });
+        }
+        
+        // 每0.5秒更新一次按键状态
+        setInterval(updateKeyStatus, 500);
+        
+        // 按钮事件处理保持不变
+    </script>
+</body>
+</html>

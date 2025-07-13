@@ -1,4 +1,4 @@
-# #camera_recevier.py
+#camera_recevier.py
 
 import cv2
 import zmq
