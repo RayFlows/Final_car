@@ -326,7 +326,7 @@ class Retinaface(object):
                     return old_image, [], [], []
                 else:
                     return old_image
-
+                
             if self.letterbox_image:
                 boxes_conf_landms = retinaface_correct_boxes(boxes_conf_landms,
                     np.array([self.retinaface_input_shape[0], self.retinaface_input_shape[1]]),
@@ -334,7 +334,24 @@ class Retinaface(object):
 
             boxes_conf_landms[:, :4] = boxes_conf_landms[:, :4] * scale
             boxes_conf_landms[:, 5:] = boxes_conf_landms[:, 5:] * scale_for_landmarks
-
+        #---------------------------------------------------#
+            # <<< MOD: 多人脸异常处理 ————
+        if len(boxes_conf_landms) > 1:
+            # 在原图上提示
+            cv2.putText(old_image,
+                        "Only one face permitted!",
+                        (30, 60),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1.2,
+                        (0, 0, 255),
+                        3)
+            # 立即返回，无需后续编码或绘图
+            if return_info:
+                return old_image, [], [], []
+            else:
+                return old_image
+        # <<< MOD END ——————————————
+        
         face_encodings = []
         for b in boxes_conf_landms:
             b = np.maximum(b, 0)
