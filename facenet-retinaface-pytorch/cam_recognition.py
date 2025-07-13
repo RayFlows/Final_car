@@ -33,6 +33,24 @@ def main(cam_id: int = 0, view_size: tuple | None = None):
 
             # 你需要在 retinaface.detect_image 中支持 return_info
             result_rgb, boxes, probs, names = retinaface.detect_image(rgb, return_info=True)
+
+            # ===== 修改点1：多人脸异常处理 =====
+            # 如果检测到多于1张人脸，则在视频中提示并直接返回 False
+            if len(boxes) > 1:
+                # 在原始预览帧上写提示文字
+                cv2.putText(frame,
+                            "Only one face permitted!",
+                            (30, 60),  # 文字位置
+                            cv2.FONT_HERSHEY_SIMPLEX, 
+                            1.2,         # 字体大小
+                            (0, 0, 255), # 红色
+                            3)           # 线宽
+                # 重新展示加了提示的帧
+                cv2.imshow("Camera Preview (press SPACE to detect)", frame)
+                cv2.waitKey(1000)  # 停留1秒钟，让用户看到提示
+                return False
+            # ===== 修改点1 结束 =====
+            
             result_bgr = cv2.cvtColor(np.array(result_rgb), cv2.COLOR_RGB2BGR)
 
             # 绘制 bbox + 名字 + conf
