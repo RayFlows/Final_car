@@ -51,8 +51,9 @@ def main(cam_id: int = 0, view_size: tuple | None = None):
                 cv2.putText(unlocked, "Unlocked Successfully!", (40, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
                 cv2.imshow("Unlocked", unlocked)
-                cv2.waitKey(1500)
-                break
+                cv2.waitKey(1000)
+                return True
+            return False
 
     cap.release()
     cv2.destroyAllWindows()
