@@ -123,6 +123,7 @@ def main(cam_id: int = None, view_size: tuple | None = None):
     start_time = time.time()
     detection_interval = 3  # 每3秒尝试一次检测
     frame_count = 0
+    last_detection_time = time.time()
 
     while True:
         ret, frame = cap.read()
@@ -143,7 +144,7 @@ def main(cam_id: int = None, view_size: tuple | None = None):
         
         # 自动检测（每隔一定时间）
         current_time = time.time()
-        if current_time - start_time > detection_interval:
+        if current_time - last_detection_time > detection_interval:
             print("尝试人脸检测...")
             try:
                 rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -154,10 +155,15 @@ def main(cam_id: int = None, view_size: tuple | None = None):
                 # 多人脸异常处理
                 if len(boxes) > 1:
                     print("检测到多个人脸")
-                    cv2.putText(frame, "Only one face permitted!", (30, 60),
+                    # 在原始帧上添加警告信息
+                    warning_frame = frame.copy()
+                    cv2.putText(warning_frame, "Only one face permitted!", (30, 60),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3)
+                    current_frame = warning_frame
+                    last_detection_time = current_time
+                    continue  # 跳过后续处理
                 
-                # 绘制结果
+                # 绘制结果 - 无论是否识别成功都要绘制框和标签
                 result_bgr = cv2.cvtColor(np.array(result_rgb), cv2.COLOR_RGB2BGR)
                 for box, prob, name in zip(boxes, probs, names):
                     box = [int(b) for b in box]
@@ -169,23 +175,34 @@ def main(cam_id: int = None, view_size: tuple | None = None):
                 # 更新全局帧为检测结果
                 current_frame = result_bgr
                 
-                # 检查是否识别到已知人脸
-                if any(n != "Unknown" for n in names):
-                    print("识别到已知人脸!")
-                    unlocked = frame.copy()
-                    cv2.putText(unlocked, "Unlocked Successfully!", (40, 60),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
-                    current_frame = unlocked
-                    cap.release()
-                    return True
+                # 检查是否识别到已知人脸 - 只有识别到已知人脸才通过
+                known_faces = [n for n in names if n != "Unknown"]
+                if known_faces:
+                    print(f"识别到已知人脸: {known_faces}")
+                    # 确保只有一个人脸被识别为已知
+                    if len(known_faces) == 1:
+                        print("认证成功!")
+                        unlocked = frame.copy()
+                        cv2.putText(unlocked, "Unlocked Successfully!", (40, 60),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+                        current_frame = unlocked
+                        cap.release()
+                        return True
+                    else:
+                        print("多个已知人脸，拒绝认证")
+                        warning_frame = frame.copy()
+                        cv2.putText(warning_frame, "Multiple known faces detected!", (30, 60),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+                        current_frame = warning_frame
+                else:
+                    print("未识别到已知人脸")
+                    # 显示检测结果但未认证
+                    current_frame = result_bgr
                 
             except Exception as e:
                 print(f"人脸检测错误: {e}")
             
-            start_time = current_time  # 重置计时器
-
-        # 检查退出条件（不再等待按键）
-        # 如果需要退出，应该由主线程控制
+            last_detection_time = current_time  # 重置计时器
 
     cap.release()
     return False
