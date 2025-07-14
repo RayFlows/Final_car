@@ -1,0 +1,24 @@
+name: yoloenv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pip
+  - numpy
+  - matplotlib
+  - opencv
+  - scikit-learn
+  - pandas
+  - tqdm
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pip:
+      - ultralytics==8.3.162
+      - tensorflow==2.13.0
+      - tensorflow-addons==0.23.0
+      - onnx
+      - thop
+      - seaborn
+      - PyYAML
