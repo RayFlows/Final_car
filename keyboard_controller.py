@@ -21,9 +21,9 @@ print(f"UDP套接字已创建，目标: {RASPBERRY_IP}:{CONTROL_PORT}")
 
 # 命令映射
 KEY_COMMANDS = {
-    'w': 'w',  # 前进
+    'w': 's',  # 前进
     'a': 'a',  # 原地左转
-    's': 's',  # 后退
+    's': 'w',  # 后退
     'd': 'd',  # 原地右转
     'x': 'x',  # 停止   
     '+': 'z',   # 加速
