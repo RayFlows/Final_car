@@ -24,7 +24,7 @@ body {
 
 /* ───── 第 1 行 ───── */
 .row-top {
-  height: 60vh;
+  height: 100vh;
   background: #eaf4ff;
   border-bottom: 3px solid #d0e0ff;
 }

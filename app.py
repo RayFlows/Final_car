@@ -1,4 +1,4 @@
-# main.py简化版（不带人脸识别）
+# main.py
 from flask import Flask, render_template, Response, jsonify, send_from_directory, url_for, request
 import threading
 import time
