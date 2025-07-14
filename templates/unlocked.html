@@ -1,47 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小车控制系统</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/unlock.css') }}">
+  <meta charset="UTF-8">
+  <title>宝宝情绪监控系统</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/unlocked.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    window.__LOCAL_FEED__ = "{{ url_for('local_video_feed') }}";
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>小车控制系统</h1>
-        <div class="video-container">
-            <!-- 使用小车视频流 -->
-            <img src="{{ url_for('car_video_feed') }}" alt="小车摄像头">
-        </div>
-        
-        <!-- 控制按钮部分保持不变 -->
-        
-        <div class="key-status">
-            <h2>当前按键状态</h2>
-            <div id="active-keys">无按键按下</div>
-        </div>
+
+  <div class="row row-top">
+    <div class="car-video">
+      <h2>小车实时视频</h2>
+      <div class="video-wrapper">
+      <img src="{{ url_for('car_video_feed') }}"
+             alt="小车实时视频"
+             class="video-feed" />
+      </div>
     </div>
-    
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script>
-        // 获取按键状态
-        function updateKeyStatus() {
-            fetch('/active_keys')
-                .then(response => response.json())
-                .then(data => {
-                    const keysDiv = document.getElementById('active-keys');
-                    if (data.keys && data.keys.length > 0) {
-                        keysDiv.textContent = data.keys.join(', ');
-                    } else {
-                        keysDiv.textContent = '无按键按下';
-                    }
-                });
-        }
-        
-        // 每0.5秒更新一次按键状态
-        setInterval(updateKeyStatus, 500);
-        
-        // 按钮事件处理保持不变
-    </script>
+
+    <div class="control-side">
+      <div class="controls">
+        <button data-mode="keyboard">键盘</button>
+        <button data-mode="gesture">手势</button>
+        <button data-mode="voice">语音</button>
+      </div>
+
+      <div class="control-content" id="control-content">
+
+        </div>
+
+    </div>
+  </div>
+
+  <div class="row row-middle">
+    <div class="prediction-box">
+      <h2>哭声情绪识别</h2>
+      <p><strong>当前情绪:</strong> <span id="latest-emotion">——</span></p>
+      <button onclick="triggerCryPrediction()">点击识别一次</button>
+    </div>
+    <div class="prediction-box">
+      <h2>物品识别结果</h2>
+      <p><strong>识别物品:</strong> <span id="detected-objects">——</span></p>
+    </div>
+  </div>
+
+  <div class="row row-bottom">
+    <div class="chart-panel">
+      <h3>情绪变化</h3>
+      <canvas id="emotionChart"></canvas>
+    </div>
+    <div class="chart-panel">
+      <h3>情绪频次</h3>
+      <canvas id="emotionPie"></canvas>
+    </div>
+    <div class="chart-panel">
+      <h3>音量趋势</h3>
+      <canvas id="volumeChart"></canvas>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/unlocked.js') }}"></script>
 </body>
 </html>

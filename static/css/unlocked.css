@@ -1,0 +1,152 @@
+/* ───── 通用 ───── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Microsoft YaHei", sans-serif;
+  background: #f8f9fa;
+  color: #222;
+}
+
+/* 横向行容器 */
+.row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 12px;
+  width: 100%;
+  min-height: 0;       
+}
+
+/* ───── 第 1 行 ───── */
+.row-top {
+  height: 60vh;
+  background: #eaf4ff;
+  border-bottom: 3px solid #d0e0ff;
+}
+
+/* 小车视频面板 */
+.car-video {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fff;
+  border: 2px dashed #007bff;
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.video-wrapper {
+  flex: 1;              
+  display: flex;
+  min-height: 0;
+}
+
+.video-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #00cc00;
+  border: 2px solid #009900;
+  border-radius: 6px;
+}
+
+/* 控制侧 */
+.control-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f3eaff;
+  border: 2px dashed #8000ff;
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 0;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+.controls button {
+  flex: 1;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #f5ebff;
+  border: 2px solid #6c2aff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.controls button:hover,
+.controls button.active {
+  background: #e1d6ff;
+}
+
+/* 本地摄像头内容区 */
+.control-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  overflow: hidden;  
+  min-height: 0;
+}
+
+/* ───── 第 2 行：预测结果 ───── */
+.row-middle {
+  height: 22vh;
+  background: #fff2f2;
+  border-top: 2px solid #ffd0d0;
+  border-bottom: 2px solid #ffd0d0;
+  min-height: 0;
+}
+
+.prediction-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fff;
+  border-left: 6px solid #ff4444;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.15);
+}
+
+/* ───── 第 3 行：图表 ───── */
+.row-bottom {
+  height: 33vh;
+  background: #f2fff2;
+  border-top: 2px solid #c8f5c8;
+  min-height: 0;
+}
+
+.chart-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 0 6px rgba(0, 128, 0, 0.1);
+}
+
+
+.controls button.active {
+  background-color: #e1d6ff;
+  border-color: #6c2aff;
+}
