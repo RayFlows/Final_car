@@ -7,6 +7,35 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     window.__LOCAL_FEED__ = "{{ url_for('local_video_feed') }}";
+    window.__GESTURE_FEED__ = "{{ url_for('gesture_video_feed') }}";
+    
+    // 添加帧率控制变量
+    let gestureFrameRate = 15; // 初始帧率
+    let gestureImgElement = null;
+    
+    function updateGestureFrameRate() {
+      if (gestureImgElement) {
+        const url = new URL(gestureImgElement.src);
+        url.searchParams.set('fps', gestureFrameRate);
+        gestureImgElement.src = url.toString();
+      }
+    }
+    
+    function increaseFrameRate() {
+      if (gestureFrameRate < 30) {
+        gestureFrameRate += 5;
+        updateGestureFrameRate();
+        document.getElementById('frameRateDisplay').textContent = gestureFrameRate + ' FPS';
+      }
+    }
+    
+    function decreaseFrameRate() {
+      if (gestureFrameRate > 5) {
+        gestureFrameRate -= 5;
+        updateGestureFrameRate();
+        document.getElementById('frameRateDisplay').textContent = gestureFrameRate + ' FPS';
+      }
+    }
     </script>
 </head>
 <body>

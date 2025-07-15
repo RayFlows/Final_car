@@ -150,3 +150,30 @@ body {
   background-color: #e1d6ff;
   border-color: #6c2aff;
 }
+
+.frame-rate-control {
+    display: inline-block;
+    margin-left: 15px;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.frame-rate-control button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 2px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 5px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.frame-rate-control span {
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+}
