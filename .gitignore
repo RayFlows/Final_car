@@ -1,1 +1,6 @@
 __pycache__/
+gesture_dataset/
+segment_data/
+train_data/
+test_data/
+val_data/
