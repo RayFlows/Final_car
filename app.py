@@ -12,7 +12,7 @@ import camera_receiver
 import atexit
 
 import uuid
-from voice_ai import chat_with_ollama, generate_tts_mp3, recognize_voice_google
+from called_module.voice_ai import chat_with_ollama, generate_tts_mp3, recognize_voice_google
 
 
 app = Flask(__name__)
@@ -24,23 +24,35 @@ auth_message = "人脸识别"
 local_frame = None
 car_frame = None
 
+# def run_face_recognition():
+#     """运行人脸识别线程"""
+#     global auth_status, auth_message
+    
+#     while not auth_status:
+#         auth_message = "正在进行人脸识别..."
+#         result = cam_recognition.main(cam_id=0, view_size=(640, 480))
+        
+#         if result:
+#             auth_status = True
+#             auth_message = "认证成功！"
+#             # 启动小车相关模块
+#             threading.Thread(target=camera_receiver.run, daemon=True).start()
+#             keyboard_controller.start()  # 启动键盘控制器
+#         else:
+#             auth_message = "认证失败，5秒后重试..."
+#             time.sleep(5)
 def run_face_recognition():
     """运行人脸识别线程"""
     global auth_status, auth_message
     
-    while not auth_status:
-        auth_message = "正在进行人脸识别..."
-        result = cam_recognition.main(cam_id=0, view_size=(640, 480))
-        
-        if result:
-            auth_status = True
-            auth_message = "认证成功！"
-            # 启动小车相关模块
-            threading.Thread(target=camera_receiver.run, daemon=True).start()
-            keyboard_controller.start()  # 启动键盘控制器
-        else:
-            auth_message = "认证失败，5秒后重试..."
-            time.sleep(5)
+    # 跳过人脸识别，直接认证成功
+    auth_status = True
+    auth_message = "认证成功！"
+    
+    # 启动小车相关模块
+    threading.Thread(target=camera_receiver.run, daemon=True).start()
+    keyboard_controller.start()  # 启动键盘控制器
+
 
 import atexit
 atexit.register(keyboard_controller.stop)
@@ -152,15 +164,61 @@ def ai_voice():
 
 
 # 音频类别识别
-from cry_emotion.model_infer import predict_random_sample
-
+from called_module.model_infer import predict_sequential_samples
 @app.route('/predict_cry_once')
 def predict_cry_once():
     try:
-        result = predict_random_sample()
+        result = predict_sequential_samples()
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# 手势识别视频流路由
+from called_module.gesture_recognition_stream import gen_gesture_camera
+@app.route('/gesture_video_feed')
+def gesture_video_feed():
+    return Response(gen_gesture_camera(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# 手势识别控制模式的路由
+current_mode = "cruise" 
+@app.route('/set_mode', methods=['POST'])
+def set_processing_mode():
+    """设置当前模式"""
+    global current_mode
+    mode = request.json.get("mode", "")
+    if mode in ["cruise", "pose"]:
+        current_mode = mode
+        print(f"切换至 {current_mode} 模式")
+        return jsonify({"status": "success", "mode": current_mode})
+    return jsonify({"status": "error", "message": "无效的模式"}), 400
+
+@app.route('/get_mode', methods=['GET'])
+def get_mode():
+    """获取当前模式"""
+    return jsonify({"status": "success", "mode": current_mode})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
