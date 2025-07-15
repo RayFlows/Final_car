@@ -45,6 +45,23 @@ class AutoController:
         self.command_start_time = 0
         self.command_duration = 0
         self.last_adjustment = None
+
+        # 抓取状态
+        self.grab_command_sent = False  # 是否已发送抓取命令
+        self.grab_target_class = None   # 抓取目标的类别
+
+        # 类别到抓取命令的映射
+        self.CLASS_TO_COMMAND = {
+            "double skin milk pudding": "1",
+            "porridge": "1",
+            "water bottle": "2",
+            "pacifier": "2",
+            "green ball": "3",
+            "purple ball": "3",
+            "shaker": "3",
+            "pig": "4",
+            "bear": "4"
+        }
         
         print("自动控制器初始化完成")
     
@@ -94,6 +111,23 @@ class AutoController:
                 self.command_duration = 0.3 if cmd in ['a', 'd'] else 0.2
         except Exception as e:
             print(f"发送控制指令失败: {e}")
+
+    def send_grab_command(self, class_name):
+        """发送抓取命令"""
+        if class_name in self.CLASS_TO_COMMAND:
+            grab_cmd = self.CLASS_TO_COMMAND[class_name]
+            try:
+                self.control_sock.sendto(grab_cmd.encode(), (self.RASPBERRY_IP, self.CONTROL_PORT))
+                print(f"✅ 发送抓取命令: {grab_cmd} (类别: {class_name})")
+                self.grab_command_sent = True
+                self.grab_target_class = class_name
+                return True
+            except Exception as e:
+                print(f"发送抓取命令失败: {e}")
+                return False
+        else:
+            print(f"⚠️ 未找到类别 '{class_name}' 对应的抓取命令")
+            return False
     
     def stop_movement(self):
         """停止所有移动"""
@@ -136,6 +170,7 @@ class AutoController:
         closest_instruction = None
         object_in_region = False
         object_center = None
+        closest_label = None
         
         for i, (box, conf, cls) in enumerate(zip(results.boxes.xyxy, results.boxes.conf, results.boxes.cls)):
             x1, y1, x2, y2 = map(int, box.tolist())
@@ -148,6 +183,7 @@ class AutoController:
             # 判断目标是否在区域内
             if self.x_min <= cx <= self.x_max and self.y_min <= cy <= self.y_max:
                 object_in_region = True
+                closest_label = label
             
             # 更新最近目标信息
             dist = np.hypot(cx - self.target_center_x, cy - self.target_center_y)
@@ -185,10 +221,38 @@ class AutoController:
         # 如果目标在区域内，停止所有移动
         if object_in_region:
             self.stop_movement()
-            print("✅ 目标在区域内，准备抓取")
             cv2.putText(frame, "TARGET IN POSITION", (50, 50),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            
+            # 如果有目标在区域内且未发送抓取命令
+            if closest_label and not self.grab_command_sent:
+                print("✅ 目标在区域内，准备抓取")
+                
+                # 查找最匹配的类别名称
+                best_match = None
+                max_similarity = 0
+                
+                for class_name in self.CLASS_TO_COMMAND.keys():
+                    # 简单的相似度计算：检查类别名称是否包含在标签中
+                    similarity = sum(1 for word in class_name.split() if word.lower() in label.lower())
+                    if similarity > max_similarity:
+                        max_similarity = similarity
+                        best_match = class_name
+                
+                if best_match:
+                    # 发送抓取命令
+                    self.send_grab_command(best_match)
+                    cv2.putText(frame, f"GRAB COMMAND SENT: {self.CLASS_TO_COMMAND[best_match]}", 
+                               (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+                else:
+                    print(f"⚠️ 无法匹配标签 '{closest_label}' 到已知类别")
+                    cv2.putText(frame, f"UNKNOWN CLASS: {closest_label}", 
+                               (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             return frame
+        
+        # 重置抓取状态（当目标离开区域时）
+        self.grab_command_sent = False
+        self.grab_target_class = None
         
         # 如果没有检测到目标或指令，跳过
         if not closest_instruction or self.current_command:
