@@ -43,12 +43,20 @@ let currentMode = '';
 
 function setControlMode(mode) {
   const container = document.getElementById('control-content');
-  container.innerHTML = '';
+  container
+  
 
   if (mode === 'gesture') {
+    // const currentModeElement = document.getElementById('current-mode');
+    // if (currentModeElement) {
+    //   currentModeElement.textContent = mode;
+    // }
     container.innerHTML = `
       <h3>手势识别摄像头</h3>
       <img src="/gesture_video_feed" alt="手势摄像头" class="video-feed">
+      <div class="current-mode">
+        <h3>当前模式: <span id="current-mode">未设置</span></h3>
+      </div>
     `;
   }
   else if (mode === 'voice') {
@@ -82,9 +90,6 @@ function setControlMode(mode) {
 
   currentMode = mode;
 }
-
-
-
 
 
 
@@ -306,3 +311,35 @@ async function triggerCryPrediction() {
     console.error(err);
   }
 }
+
+
+
+
+async function getCurrentMode() {
+  const res = await fetch('/get_mode', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  const data = await res.json();
+
+  if (data.status === "success") {
+    const currentMode = data.mode;
+    const currentModeElement = document.getElementById('current-mode');
+    if (currentModeElement) {
+      currentModeElement.textContent = currentMode;
+    }
+  } else {
+    console.error('获取当前模式失败:', data.message);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 页面加载完成时，获取当前模式
+  getCurrentMode();
+
+  // 每隔 500 毫秒获取一次当前模式并更新显示
+  setInterval(getCurrentMode, 500);
+});
