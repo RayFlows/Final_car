@@ -79,3 +79,64 @@ def get_frame():
 def get_frame_queue():
     """获取帧队列"""
     return frame_queue
+
+
+# import cv2
+# import zmq
+# import base64
+# import numpy as np
+# from final_object_detection import autocontroller 
+# from queue import Queue
+# from app import current_mode
+
+# frame_queue = Queue(maxsize=5)
+# last_frame = None
+# processed_frame = None
+
+
+
+# def run():
+#     """运行视频接收器"""
+#     global last_frame, processed_frame
+#     print("启动视频接收器...")
+
+#     controller = autocontroller.AutoController()
+
+#     context = zmq.Context()
+#     footage_socket = context.socket(zmq.PAIR)
+#     footage_socket.bind('tcp://*:5555')
+#     print("等待树莓派视频流连接...")
+
+#     try:
+#         while True:
+#             jpg_as_text = footage_socket.recv()
+#             img_data = base64.b64decode(jpg_as_text)
+#             npimg = np.frombuffer(img_data, dtype=np.uint8)
+#             frame = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+
+#             if frame is not None:
+#                 last_frame = frame
+
+#                 if current_mode == "cruise":
+#                     processed_frame = controller.process_frame(frame.copy())
+#                 elif current_mode == "pose":
+#                     processed_frame = frame
+#                     # 这里加上姿势检测的内容
+
+#                 if not frame_queue.full():
+#                     frame_queue.put(processed_frame)
+
+#     except Exception as e:
+#         print(f"视频接收错误: {e}")
+#     finally:
+#         footage_socket.close()
+#         context.term()
+
+# def get_frame():
+#     """获取最新帧（带目标检测或巡航处理）"""
+#     global processed_frame
+#     return processed_frame if processed_frame is not None else last_frame
+
+# def get_frame_queue():
+#     """获取帧队列"""
+#     return frame_queue
