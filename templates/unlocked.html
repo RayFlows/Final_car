@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>宝宝情绪监控系统</title>
+  <title>Baby Emotion Monitoring System</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/unlocked.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -43,7 +43,7 @@
 
   <div class="row row-top">
     <div class="car-video">
-      <h2>小车实时视频</h2>
+      <h2>Vehicle Real Time Video</h2>
       <div class="video-wrapper">
       <img src="{{ url_for('car_video_feed') }}"
              alt="小车实时视频"
@@ -53,9 +53,9 @@
 
     <div class="control-side">
       <div class="controls">
-        <button data-mode="keyboard">键盘</button>
-        <button data-mode="gesture">手势</button>
-        <button data-mode="voice">语音</button>
+        <button data-mode="keyboard">keyboard</button>
+        <button data-mode="gesture">gesture</button>
+        <button data-mode="voice">voice</button>
       </div>
 
       <div class="control-content" id="control-content">
@@ -67,27 +67,27 @@
 
   <div class="row row-middle">
     <div class="prediction-box">
-      <h2>哭声情绪识别</h2>
-      <p><strong>当前情绪:</strong> <span id="latest-emotion">——</span></p>
-      <button onclick="triggerCryPrediction()">点击识别一次</button>
+      <h2>Crying Emotion Recognition</h2>
+      <p><strong>Current Mode:</strong> <span id="latest-emotion">——</span></p>
+      <button onclick="triggerCryPrediction()">Click to recognize</button>
     </div>
     <div class="prediction-box">
-      <h2>姿势识别结果</h2>
-      <p><strong>识别姿势:</strong> <span id="detected-objects">——</span></p>
+      <h2>Babe Pose Recognition Result</h2>
+      <p><strong>Pose recognized:</strong> <span id="detected-objects">——</span></p>
     </div>
   </div>
 
   <div class="row row-bottom">
     <div class="chart-panel">
-      <h3>情绪变化</h3>
+      <h3>Emotion change</h3>
       <canvas id="emotionChart"></canvas>
     </div>
     <div class="chart-panel">
-      <h3>情绪频次</h3>
+      <h3>Emotion frequency</h3>
       <canvas id="emotionPie"></canvas>
     </div>
     <div class="chart-panel">
-      <h3>音量趋势</h3>
+      <h3>Volume trend</h3>
       <canvas id="volumeChart"></canvas>
     </div>
   </div>
