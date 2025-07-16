@@ -24,3 +24,6 @@ Pillow>=8.2.0
 h5py>=2.10.0
 pygame
 mediapipe
+dsntnn
+yacs
+flask_socketio

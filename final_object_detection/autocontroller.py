@@ -10,14 +10,15 @@ class AutoController:
         print("初始化自动控制器...")
         # 加载目标检测模型
         self.model = YOLO("final_object_detection/detect 2/train2/weights/last.pt")
+        # self.model = YOLO("final_object_detection/detect/train\weights/last.pt")
         self.model.fuse()
         
         # 目标区域配置
         self.TARGET_REGION = [
-            (290, 210),
-            (290, 270),
-            (350, 270),
-            (350, 210)
+            (300, 220),
+            (300, 260),
+            (340, 260),
+            (340, 220)
         ]
         
         # 计算目标区域参数
