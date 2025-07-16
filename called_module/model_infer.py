@@ -7,6 +7,45 @@ import sqlite3
 import pygame
 import joblib
 from transformers import ASTFeatureExtractor, ASTForAudioClassification
+import socket
+
+RASPBERRY_IP = "frp-fit.com"
+CONTROL_PORT = 26669
+
+# 创建一个字典，用于将预测的情绪映射到要发送的字符命令
+EMOTION_TO_COMMAND = {
+    "hungry": "5",
+    "awake": "6",
+    "sleepy": "7",
+    "uncomfortable": "8"
+}
+
+# 初始化用于向树莓派发送命令的 UDP 套接字
+try:
+    control_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    print(f"✅ UDP 套接字创建成功。准备向 {RASPBERRY_IP}:{CONTROL_PORT} 发送指令。")
+except Exception as e:
+    print(f"❌ 创建套接字时出错: {e}")
+    control_sock = None
+
+def send_emotion_command(emotion_label):
+    if not control_sock:
+        print("⚠️ 无法发送指令：套接字未初始化。")
+        return
+
+    # 从映射字典中获取对应的指令字符
+    command = EMOTION_TO_COMMAND.get(emotion_label)
+
+    if command:
+        try:
+            # 将指令字符串编码为字节并发送
+            control_sock.sendto(command.encode('utf-8'), (RASPBERRY_IP, CONTROL_PORT))
+            print(f"✅ 已成功为情绪 '{emotion_label}' 发送指令 '{command}' 到树莓派。")
+        except Exception as e:
+            print(f"❌ 为情绪 '{emotion_label}' 发送指令失败: {e}")
+    else:
+        print(f"⚠️ 未找到为情绪 '{emotion_label}' 定义的指令。")
+
 
 SAMPLE_RATE = 16000
 DEVICE = torch.device("cpu")
@@ -138,6 +177,8 @@ def predict_sequential_samples():
 
     pred_label = label_encoder.inverse_transform([pred])[0]
 
+    send_emotion_command(pred_label)
+    
     print(f"预测标签: {pred_label} | {'正确' if pred_label == true_label else '错误'}")
 
     average_volume = calculate_average_volume(waveform)
