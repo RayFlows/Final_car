@@ -1,4 +1,93 @@
-/* ───── 通用 ───── */
+/* 引入可爱的圆体字 'Nunito' */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+/* --- 多主题颜色系统 ---
+  默认主题是“丁香紫”。
+  要切换主题，请在HTML的<body>标签上添加对应的class:
+  - 樱花粉 & 薄荷绿: <body class="theme-sakura">
+  - 海洋蓝 & 珊瑚橘: <body class="theme-ocean">
+  - 蜂蜜黄 & 奶油白: <body class="theme-honey">
+*/
+
+/* 主题1 (默认): 丁香紫 & 桃粉色 (Lavender & Peach) */
+:root {
+  --bg-main: #f9f8fd;
+  --bg-section-top: #f4effa;
+  --bg-section-middle: #fef6f5;
+  --bg-section-bottom: #f5fcf9;
+  --bg-panel: #ffffff;
+  --color-primary: #9b86c2;
+  --color-primary-light: #eeebf5;
+  --color-accent: #ff8c82;
+  --color-accent-light: #fff2f0;
+  --text-dark: #4e4466;
+  --text-light: #938ca9;
+  --border-color: #e9e3f3;
+  --shadow-color: rgba(155, 134, 194, 0.12);
+}
+
+/* 主题2: 樱花粉 & 薄荷绿 (Sakura & Mint) */
+body.theme-sakura {
+  --bg-main: #fdf9f9;
+  --bg-section-top: #fef4f4;
+  --bg-section-middle: #f4fcf8;
+  --bg-section-bottom: #fef9f4;
+  --color-primary: #ffb6c1; /* 樱花粉 */
+  --color-primary-light: #fff0f3;
+  --color-accent: #98d8c2; /* 薄荷绿 */
+  --color-accent-light: #f0fafa;
+  --text-dark: #6d4b5a;
+  --text-light: #a6808c;
+  --border-color: #fae6e8;
+  --shadow-color: rgba(255, 182, 193, 0.15);
+}
+
+/* 主题3: 海洋蓝 & 珊瑚橘 (Ocean & Coral) */
+body.theme-ocean {
+  --bg-main: #f7fcff;
+  --bg-section-top: #f0f9ff;
+  --bg-section-middle: #fff8f5;
+  --bg-section-bottom: #f5fcff;
+  --color-primary: #87ceeb; /* 海洋蓝 */
+  --color-primary-light: #eef8fc;
+  --color-accent: #ff7f50; /* 珊瑚橘 */
+  --color-accent-light: #fff2ed;
+  --text-dark: #4a6a7b;
+  --text-light: #7b9aa9;
+  --border-color: #e3f2fa;
+  --shadow-color: rgba(135, 206, 235, 0.15);
+}
+
+/* 主题4: 蜂蜜黄 & 奶油白 (Honey & Cream) */
+body.theme-honey {
+  --bg-main: #fffdf5;
+  --bg-section-top: #fffbef;
+  --bg-section-middle: #fdfcf9;
+  --bg-section-bottom: #fffdf5;
+  --color-primary: #f8d57e; /* 蜂蜜黄 */
+  --color-primary-light: #fff8e9;
+  --color-accent: #bfa88c; /* 奶油棕 */
+  --color-accent-light: #f9f5ef;
+  --text-dark: #7b6a4a;
+  --text-light: #a99a83;
+  --border-color: #fbecd2;
+  --shadow-color: rgba(248, 213, 126, 0.15);
+}
+
+
+/* 定义优雅的淡入动画 (保持不变) */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ───── 通用 (使用变量) ───── */
 *,
 *::before,
 *::after {
@@ -7,131 +96,174 @@
 
 body {
   margin: 0;
-  font-family: "Microsoft YaHei", sans-serif;
-  background: #f8f9fa;
-  color: #222;
+  font-family: "Nunito", "Microsoft YaHei", sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  overflow-x: hidden;
 }
 
-/* 横向行容器 */
+/* ───── 布局 & 分区背景 (使用变量) ───── */
 .row {
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  padding: 12px;
+  gap: 24px;
+  padding: 24px;
   width: 100%;
-  min-height: 0;       
+  min-height: 0;
 }
 
-/* ───── 第 1 行 ───── */
 .row-top {
   height: 100vh;
-  background: #eaf4ff;
-  border-bottom: 3px solid #d0e0ff;
+  background-color: var(--bg-section-top);
 }
 
-/* 小车视频面板 */
+.row-middle {
+  height: 22vh;
+  background-color: var(--bg-section-middle);
+}
+
+.row-bottom {
+  height: 33vh;
+  background-color: var(--bg-section-bottom);
+}
+
+/* 统一所有面板的协调风格 (使用变量) */
+.car-video,
+.control-side,
+.prediction-box,
+.chart-panel {
+  background: var(--bg-panel);
+  border-radius: 28px;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+  opacity: 0;
+  animation: fadeInUp 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.car-video:hover,
+.control-side:hover,
+.prediction-box:hover,
+.chart-panel:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 35px var(--shadow-color);
+}
+
+/* 动画延迟 (保持不变) */
+.row-top .car-video, .row-top .control-side { animation-delay: 0.2s; }
+.row-middle .prediction-box:nth-child(1) { animation-delay: 0.4s; }
+.row-middle .prediction-box:nth-child(2) { animation-delay: 0.5s; }
+.row-bottom .chart-panel:nth-child(1) { animation-delay: 0.6s; }
+.row-bottom .chart-panel:nth-child(2) { animation-delay: 0.7s; }
+.row-bottom .chart-panel:nth-child(3) { animation-delay: 0.8s; }
+
+/* ───── 视频区 (保持不变) ───── */
 .car-video {
   flex: 1.2;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: #fff;
-  border: 2px dashed #007bff;
-  border-radius: 8px;
-  padding: 12px;
+  gap: 16px;
   min-width: 0;
 }
 
 .video-wrapper {
-  flex: 1;              
+  flex: 1;
   display: flex;
   min-height: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .video-feed {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: #00cc00;
-  border: 2px solid #009900;
-  border-radius: 6px;
+  background: #f5f5f5;
+  border: none;
 }
 
-/* 控制侧 */
+/* ───── 控制区 (使用变量) ───── */
 .control-side {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  background: #f3eaff;
-  border: 2px dashed #8000ff;
-  border-radius: 8px;
-  padding: 12px;
+  gap: 24px;
   min-width: 0;
 }
 
 .controls {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
 .controls button {
-  flex: 1;
-  padding: 14px;
+  padding: 16px;
   font-size: 16px;
   font-weight: bold;
-  background: #f5ebff;
-  border: 2px solid #6c2aff;
-  border-radius: 6px;
+  font-family: "Nunito", sans-serif;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: none;
+  border-radius: 18px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
 }
 
-.controls button:hover,
+.controls button:hover {
+  background-color: var(--color-primary);
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 15px var(--shadow-color);
+}
+
 .controls button.active {
-  background: #e1d6ff;
+  background-color: var(--color-primary);
+  color: white;
+  box-shadow: 0 5px 12px var(--shadow-color);
 }
 
-/* 本地摄像头内容区 */
 .control-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  overflow: hidden;  
+  background: var(--bg-main);
+  border: 2px dashed var(--border-color);
+  border-radius: 18px;
+  padding: 16px;
+  overflow: hidden;
   min-height: 0;
 }
 
-/* ───── 第 2 行：预测结果 ───── */
-.row-middle {
-  height: 22vh;
-  background: #fff2f2;
-  border-top: 2px solid #ffd0d0;
-  border-bottom: 2px solid #ffd0d0;
-  min-height: 0;
-}
-
+/* ───── 预测区和图表区 (使用变量) ───── */
 .prediction-box {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: #fff;
-  border-left: 6px solid #ff4444;
-  border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 0 8px rgba(255, 0, 0, 0.15);
+  align-items: center;
+  text-align: center;
 }
 
-/* ───── 第 3 行：图表 ───── */
-.row-bottom {
-  height: 33vh;
-  background: #f2fff2;
-  border-top: 2px solid #c8f5c8;
-  min-height: 0;
+.prediction-box button {
+  margin-top: 16px;
+  padding: 10px 24px;
+  background: var(--color-accent-light);
+  border: none;
+  color: var(--color-accent);
+  border-radius: 24px;
+  cursor: pointer;
+  font-family: "Nunito", sans-serif;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.prediction-box button:hover {
+  background: var(--color-accent);
+  color: white;
+  transform: scale(1.05);
 }
 
 .chart-panel {
@@ -139,16 +271,32 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: #fff;
-  border-radius: 10px;
-  padding: 14px;
-  box-shadow: 0 0 6px rgba(0, 128, 0, 0.1);
 }
 
+/* ───── 文字样式 (使用变量) ───── */
+h2, h3 {
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--text-dark);
+}
 
-.controls button.active {
-  background-color: #e1d6ff;
-  border-color: #6c2aff;
+p {
+  font-size: 16px;
+  margin: 4px 0;
+  color: var(--text-light);
+}
+
+#latest-emotion, #detected-objects {
+  font-weight: bold;
+  font-size: 1.5em;
+  color: var(--color-accent);
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 16px;
+  background-color: var(--color-accent-light);
+  border-radius: 16px;
+  transition: all 0.3s ease;
 }
 
 .frame-rate-control {

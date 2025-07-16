@@ -14,6 +14,8 @@ import atexit
 import uuid
 from called_module.voice_ai import chat_with_ollama, generate_tts_mp3, recognize_voice_google
 
+import torch
+
 
 app = Flask(__name__)
 # 全局状态
@@ -51,7 +53,7 @@ def run_face_recognition():
     
     # 启动小车相关模块
     threading.Thread(target=camera_receiver.run, daemon=True).start()
-    keyboard_controller.start()  # 启动键盘控制器
+    # keyboard_controller.start()  # 启动键盘控制器
 
 
 import atexit
@@ -182,7 +184,12 @@ def gesture_video_feed():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # 手势识别控制模式的路由
-current_mode = "cruise" 
+import threading
+
+# 添加一个锁来同步 current_mode 的更新
+current_mode = "pose"
+mode_lock = threading.Lock()
+
 @app.route('/set_mode', methods=['POST'])
 def set_processing_mode():
     """设置当前模式"""
@@ -203,33 +210,83 @@ def get_mode():
 
 
 
+import sqlite3
+from flask import jsonify
+
+def get_emotion_data():
+    """从数据库获取情绪数据"""
+    conn = sqlite3.connect('audio_predictions.db')
+    cursor = conn.cursor()
+
+    # 获取情绪变化数据：按时间顺序获取最近的情绪
+    cursor.execute('''
+        SELECT predicted_label, created_at
+        FROM predictions
+        ORDER BY created_at DESC
+        LIMIT 6
+    ''')
+    emotion_data = cursor.fetchall()
+
+    # 获取情绪频次数据
+    cursor.execute('''
+        SELECT predicted_label, COUNT(*)
+        FROM predictions
+        GROUP BY predicted_label
+    ''')
+    emotion_freq_data = cursor.fetchall()
+
+    # 获取音量趋势数据
+    cursor.execute('''
+        SELECT duration, AVG(average_volume)
+        FROM predictions
+        GROUP BY duration
+    ''')
+    volume_trend_data = cursor.fetchall()
+
+    conn.close()
+
+    # 数据格式化
+    emotions = [data[0] for data in emotion_data]
+    timestamps = [data[1] for data in emotion_data]
+    emotion_frequency = {label: count for label, count in emotion_freq_data}
+    volume_trend = {duration: volume for duration, volume in volume_trend_data}
+
+    return {
+        'emotionChange': emotions[::-1],  # 最近的情绪倒序显示
+        'emotionFrequency': emotion_frequency,
+        'volumeTrend': volume_trend
+    }
+
+@app.route('/get_emotion_data')
+def get_emotion_data_route():
+    """返回情绪数据的接口"""
+    data = get_emotion_data()
+    return jsonify(data)
 
 
+from extensions import socketio
+socketio.init_app(app)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+from called_module.model_infer import create_and_insert_initial_data
 if __name__ == '__main__':
     # 启动人脸识别线程
     threading.Thread(target=run_face_recognition, daemon=True).start()
     
-    keyboard_controller.start()
+    # keyboard_controller.start()
 
     # 启动Flask应用
     app.run(host='0.0.0.0', port=5000, threaded=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+
+
+
+
+
+
+
+
+
 
 
 
