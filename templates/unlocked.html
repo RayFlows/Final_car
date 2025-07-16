@@ -5,6 +5,7 @@
   <title>宝宝情绪监控系统</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/unlocked.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
     window.__LOCAL_FEED__ = "{{ url_for('local_video_feed') }}";
     </script>
@@ -42,8 +43,8 @@
       <button onclick="triggerCryPrediction()">点击识别一次</button>
     </div>
     <div class="prediction-box">
-      <h2>物品识别结果</h2>
-      <p><strong>识别物品:</strong> <span id="detected-objects">——</span></p>
+      <h2>姿势识别结果</h2>
+      <p><strong>识别姿势:</strong> <span id="detected-objects">——</span></p>
     </div>
   </div>
 
