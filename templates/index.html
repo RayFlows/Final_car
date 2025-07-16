@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>人脸认证系统</title>
+    <title>Face Recognition Unlock System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>人脸识别认证</h1>
+        <h1>Face Recognition to Unlock</h1>
         <div class="video-container">
             <!-- 使用新的视频流 -->
             <img src="{{ url_for('local_video_feed') }}" alt="摄像头预览">
@@ -17,11 +17,11 @@
             {{ auth_message }}
         </div>
         <div class="instructions">
-            <p>请确保：</p>
+            <p>Please ensure that：</p>
             <ul>
-                <li>脸部在画面中央</li>
-                <li>光线充足</li>
-                <li>无其他人脸在画面中</li>
+                <li>The face is in the center of the frame.</li>
+                <li>There is sufficient lighting.</li>
+                <li>No other faces are present in the frame.</li>
             </ul>
         </div>
     </div>
