@@ -57,5 +57,24 @@ def generate_tts_mp3(text, save_dir):
         print("TTS 生成失败:", e)
         return ""
 
+
+def recognize_speech_from_microphone(duration=5):
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print(f"开始录音，录制时长：{duration}秒...")
+        recognizer.adjust_for_ambient_noise(source)
+
+        audio = recognizer.listen(source, timeout=duration)
+
+    try:
+        text = recognizer.recognize_google(audio)
+        print(f"识别结果: {text}")
+        return text
+    except sr.UnknownValueError:
+        print("无法理解音频")
+        return "无法理解音频"
+    except sr.RequestError as e:
+        print(f"语音识别请求失败: {e}")
+        return "语音识别服务不可用"
 # 英文提问英文回答
 # Generate a short story, no more than 80 words, preferably one that children can understand.
