@@ -48,6 +48,13 @@ class AutoController:
         self.command_duration = 0
         self.last_adjustment = None
 
+        # 新增：巡航状态和参数
+        self.state = "idle"  # 状态: "idle", "patrol", "track", "grab"
+        self.patrol_sequence = ["forward", "right", "forward", "left"]  # 简单序列: 前进-右转-前进-左转，形成循环覆盖
+        self.patrol_index = 0  # 当前序列索引
+        self.patrol_start_time = 0
+        self.patrol_durations = {"forward": 0.5, "right": 0.3, "left": 0.6, "backward": 0.2}  # 时间（秒），可调整以覆盖小区域
+
         # 抓取状态
         self.grab_command_sent = False  # 是否已发送抓取命令
         self.grab_target_class = None   # 抓取目标的类别
@@ -123,6 +130,7 @@ class AutoController:
                 print(f"✅ 发送抓取命令: {grab_cmd} (类别: {class_name})")
                 self.grab_command_sent = True
                 self.grab_target_class = class_name
+                self.state = "grab"  # 新增：进入抓取状态
                 return True
             except Exception as e:
                 print(f"发送抓取命令失败: {e}")
@@ -143,6 +151,23 @@ class AutoController:
             self.stop_movement()
             return True
         return False
+    
+    def patrol(self):
+        """执行巡航序列"""
+        if time.time() - self.patrol_start_time > self.patrol_durations.get(self.patrol_sequence[self.patrol_index], 0.5):
+            self.stop_movement()
+            self.patrol_index = (self.patrol_index + 1) % len(self.patrol_sequence)  # 循环序列
+            self.patrol_start_time = time.time()
+
+        action = self.patrol_sequence[self.patrol_index]
+        if action == "forward":
+            self.send_control_command('s', duration=self.patrol_durations["forward"])
+        elif action == "backward":
+            self.send_control_command('w', duration=self.patrol_durations["backward"])
+        elif action == "left":
+            self.send_control_command('a', duration=self.patrol_durations["left"])
+        elif action == "right":
+            self.send_control_command('d', duration=self.patrol_durations["right"])
     
     def process_frame(self, frame):
         """处理帧并进行目标检测"""
@@ -219,42 +244,55 @@ class AutoController:
         
         # 更新最后控制时间
         self.last_control_time = current_time
+
+        # 如果有检测到目标
+        if results.boxes and closest_instruction:
+            self.state = "track"  # 进入追踪模式
+            self.patrol_index = 0  # 重置巡航
         
-        # 如果目标在区域内，停止所有移动
-        if object_in_region:
-            self.stop_movement()
-            cv2.putText(frame, "TARGET IN POSITION", (50, 50),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            
-            # 如果有目标在区域内且未发送抓取命令
-            if closest_label and not self.grab_command_sent:
-                print("✅ 目标在区域内，准备抓取")
+            # 如果目标在区域内，停止所有移动
+            if object_in_region:
+                self.stop_movement()
+                cv2.putText(frame, "TARGET IN POSITION", (50, 50),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 
-                # 查找最匹配的类别名称
-                best_match = None
-                max_similarity = 0
-                
-                for class_name in self.CLASS_TO_COMMAND.keys():
-                    # 简单的相似度计算：检查类别名称是否包含在标签中
-                    similarity = sum(1 for word in class_name.split() if word.lower() in label.lower())
-                    if similarity > max_similarity:
-                        max_similarity = similarity
-                        best_match = class_name
-                
-                if best_match:
-                    # 发送抓取命令
-                    self.send_grab_command(best_match)
-                    cv2.putText(frame, f"GRAB COMMAND SENT: {self.CLASS_TO_COMMAND[best_match]}", 
-                               (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
-                else:
-                    print(f"⚠️ 无法匹配标签 '{closest_label}' 到已知类别")
-                    cv2.putText(frame, f"UNKNOWN CLASS: {closest_label}", 
-                               (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            return frame
+                # 如果有目标在区域内且未发送抓取命令
+                if closest_label and not self.grab_command_sent:
+                    print("✅ 目标在区域内，准备抓取")
+                    
+                    # 查找最匹配的类别名称
+                    best_match = None
+                    max_similarity = 0
+                    
+                    for class_name in self.CLASS_TO_COMMAND.keys():
+                        # 简单的相似度计算：检查类别名称是否包含在标签中
+                        similarity = sum(1 for word in class_name.split() if word.lower() in label.lower())
+                        if similarity > max_similarity:
+                            max_similarity = similarity
+                            best_match = class_name
+                    
+                    if best_match:
+                        # 发送抓取命令
+                        self.send_grab_command(best_match)
+                        cv2.putText(frame, f"GRAB COMMAND SENT: {self.CLASS_TO_COMMAND[best_match]}", 
+                                (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+                    else:
+                        print(f"⚠️ 无法匹配标签 '{closest_label}' 到已知类别")
+                        cv2.putText(frame, f"UNKNOWN CLASS: {closest_label}", 
+                                (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                return frame
         
-        # 重置抓取状态（当目标离开区域时）
-        self.grab_command_sent = False
-        self.grab_target_class = None
+            # 重置抓取状态（当目标离开区域时）
+            self.grab_command_sent = False
+            self.grab_target_class = None
+
+         # 新增：无目标时进入巡航模式
+        else:
+            if self.state != "grab":  # 避免抓取中巡航
+                self.state = "patrol"
+                self.patrol()
+                cv2.putText(frame, "PATROL MODE: NO TARGET", (50, 50),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2)   
         
         # 如果没有检测到目标或指令，跳过
         if not closest_instruction or self.current_command:
