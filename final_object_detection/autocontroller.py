@@ -9,7 +9,7 @@ class AutoController:
     def __init__(self):
         print("初始化自动控制器...")
         # 加载目标检测模型
-        self.model = YOLO("final_object_detection/detect_final/best.pt")
+        self.model = YOLO("final_object_detection/detect_final/last.pt")
         # self.model = YOLO("final_object_detection/detect 2/train2/weights/last.pt")
         # self.model = YOLO("final_object_detection/detect/train\weights/last.pt")
         self.model.fuse()
@@ -42,7 +42,7 @@ class AutoController:
         
         # 控制状态
         self.last_control_time = 0
-        self.control_interval = 0.5  # 控制间隔
+        self.control_interval = 0.2  # 控制间隔
         self.current_command = None
         self.command_start_time = 0
         self.command_duration = 0
@@ -190,7 +190,7 @@ class AutoController:
                   5, (0, 0, 255), -1)
         
         # 目标检测推理
-        results = self.model(frame, conf=0.5, verbose=False)[0]
+        results = self.model(frame, conf=0.35, verbose=False)[0]
         names = self.model.names
         
         closest_dist = float('inf')

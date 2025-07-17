@@ -9,7 +9,7 @@ from facenet_retinaface_pytorch import cam_recognition
 import keyboard_controller
 import os
 import camera_receiver
-import atexit
+# import atexit
 
 import uuid
 from called_module.voice_ai import chat_with_ollama, generate_tts_mp3, recognize_voice_google, recognize_speech_from_microphone
@@ -26,38 +26,38 @@ auth_message = "人脸识别"
 local_frame = None
 car_frame = None
 
-# def run_face_recognition():
-#     """运行人脸识别线程"""
-#     global auth_status, auth_message
-    
-#     while not auth_status:
-#         auth_message = "正在进行人脸识别..."
-#         result = cam_recognition.main(cam_id=0, view_size=(640, 480))
-        
-#         if result:
-#             auth_status = True
-#             auth_message = "认证成功！"
-#             # 启动小车相关模块
-#             threading.Thread(target=camera_receiver.run, daemon=True).start()
-#             keyboard_controller.start()  # 启动键盘控制器
-#         else:
-#             auth_message = "认证失败，5秒后重试..."
-#             time.sleep(5)
 def run_face_recognition():
     """运行人脸识别线程"""
     global auth_status, auth_message
     
-    # 跳过人脸识别，直接认证成功
-    auth_status = True
-    auth_message = "认证成功！"
+    while not auth_status:
+        auth_message = "正在进行人脸识别..."
+        result = cam_recognition.main(cam_id=0, view_size=(640, 480))
+        
+        if result:
+            auth_status = True
+            auth_message = "认证成功！"
+            # 启动小车相关模块
+            threading.Thread(target=camera_receiver.run, daemon=True).start()
+            keyboard_controller.start()  # 启动键盘控制器
+        else:
+            auth_message = "认证失败，5秒后重试..."
+            time.sleep(5)
+# def run_face_recognition():
+#     """运行人脸识别线程"""
+#     global auth_status, auth_message
     
-    # 启动小车相关模块
-    threading.Thread(target=camera_receiver.run, daemon=True).start()
-    # keyboard_controller.start()  # 启动键盘控制器
+#     # 跳过人脸识别，直接认证成功
+#     auth_status = True
+#     auth_message = "认证成功！"
+    
+#     # 启动小车相关模块
+#     threading.Thread(target=camera_receiver.run, daemon=True).start()
+#     # keyboard_controller.start()  # 启动键盘控制器
 
 
-import atexit
-atexit.register(keyboard_controller.stop)
+# import atexit
+# atexit.register(keyboard_controller.stop)
 
 @app.route('/')
 def index():
