@@ -22,7 +22,7 @@ app = Flask(__name__)
 # auth_status = True
 # auth_message = "已跳过人脸识别，直接进入控制界面"
 auth_status = False
-auth_message = "人脸识别"
+auth_message = "Face recognition"
 local_frame = None
 car_frame = None
 
@@ -31,17 +31,17 @@ def run_face_recognition():
     global auth_status, auth_message
     
     while not auth_status:
-        auth_message = "正在进行人脸识别..."
+        auth_message = "Face recognition in progress..."
         result = cam_recognition.main(cam_id=0, view_size=(640, 480))
         
         if result:
             auth_status = True
-            auth_message = "认证成功！"
+            auth_message = "Authentication is successful!"
             # 启动小车相关模块
             threading.Thread(target=camera_receiver.run, daemon=True).start()
             keyboard_controller.start()  # 启动键盘控制器
         else:
-            auth_message = "认证失败，5秒后重试..."
+            auth_message = "Authentication failed, try again in 5 seconds..."
             time.sleep(5)
 # def run_face_recognition():
 #     """运行人脸识别线程"""
