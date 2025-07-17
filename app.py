@@ -12,7 +12,7 @@ import camera_receiver
 import atexit
 
 import uuid
-from called_module.voice_ai import chat_with_ollama, generate_tts_mp3, recognize_voice_google
+from called_module.voice_ai import chat_with_ollama, generate_tts_mp3, recognize_voice_google, recognize_speech_from_microphone
 
 import torch
 
@@ -151,18 +151,15 @@ def ai_text():
 
 @app.route('/ai/voice', methods=['POST'])
 def ai_voice():
-    wav = request.files['voice']
-    tmpname = os.path.join('/tmp', f'{uuid.uuid4()}.wav')
-    wav.save(tmpname)
-
-    question = recognize_voice_google(tmpname)
-    os.remove(tmpname)
-
-    answer = chat_with_ollama(question)
+    text = recognize_speech_from_microphone(duration=5)
+    
+    if text == "无法理解音频" or text == "语音识别服务不可用":
+        return jsonify({"error": "语音识别失败"}), 400
+    answer = chat_with_ollama(text)
     mp3_path = generate_tts_mp3(answer, AUDIO_DIR)
     audio_url = url_for('static', filename=f'ai_audio/{mp3_path}')
+    
     return jsonify({'reply': answer, 'audio_url': audio_url})
-
 
 
 # 音频类别识别

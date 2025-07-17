@@ -8,6 +8,7 @@ import pygame
 import joblib
 from transformers import ASTFeatureExtractor, ASTForAudioClassification
 import socket
+import random
 
 RASPBERRY_IP = "frp-fit.com"
 CONTROL_PORT = 26669
@@ -57,7 +58,7 @@ feature_extractor = ASTFeatureExtractor.from_pretrained("MIT/ast-finetuned-audio
 label_encoder = joblib.load("cry_emotion/label_encoder.pkl")
 
 subfolders = ['awake', 'hungry', 'sleepy', 'uncomfortable']
-current_subfolder_index = 3
+current_subfolder_index = random.randint(0, 3)
 
 dataset_dir = "cry_emotion/dataset_cry"
 
