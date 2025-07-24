@@ -117,7 +117,7 @@ This README provides an overview of the project, its features, technical archite
 ---
 
 ## 📸 **Project Images**
-
+！[Figure: Overview of the vehicle](overview.jpeg)
 
 
 ---
